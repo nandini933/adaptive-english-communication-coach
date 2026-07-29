@@ -1,0 +1,10 @@
+{
+  "info": {"name": "Adaptive English Communication Coach", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},
+  "variable": [{"key":"baseUrl","value":"http://localhost:8000/api/v1"}],
+  "item": [
+    {"name":"Sign up","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"url":"{{baseUrl}}/auth/signup","body":{"mode":"raw","raw":"{\n  \"email\": \"learner@example.com\",\n  \"password\": \"StrongPass123!\",\n  \"full_name\": \"Learner Name\"\n}"}}},
+    {"name":"Login","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"url":"{{baseUrl}}/auth/login","body":{"mode":"raw","raw":"{\n  \"email\": \"demo@coach.local\",\n  \"password\": \"DemoPass123!\"\n}"}}},
+    {"name":"Daily lesson","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{token}}"}],"url":"{{baseUrl}}/lessons/daily"}},
+    {"name":"Grammar correction","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Content-Type","value":"application/json"}],"url":"{{baseUrl}}/grammar/correct","body":{"mode":"raw","raw":"{\"text\":\"i dont know the project status\"}"}}}
+  ]
+}
