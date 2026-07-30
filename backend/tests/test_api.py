@@ -1,3 +1,8 @@
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+sys.path.append(str(ROOT))
 import os
 os.environ["DATABASE_URL"]="sqlite:///./test_coach.db"
 from fastapi.testclient import TestClient
