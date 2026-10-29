@@ -1,10 +1,34 @@
 {
-  "info": {"name": "Adaptive English Communication Coach", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},
-  "variable": [{"key":"baseUrl","value":"http://localhost:8000/api/v1"}],
+  "info": {
+    "name": "CommunicateIQ API",
+    "description": "Private learner API workflow. Replace the sample email/password variables before use. Login saves the bearer token for protected requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key":"baseUrl","value":"http://localhost:8000/api/v1"},
+    {"key":"email","value":"learner@example.com"},
+    {"key":"password","value":"ReplaceWithYourPass123!"},
+    {"key":"token","value":""},
+    {"key":"word","value":"align"}
+  ],
   "item": [
-    {"name":"Sign up","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"url":"{{baseUrl}}/auth/signup","body":{"mode":"raw","raw":"{\n  \"email\": \"learner@example.com\",\n  \"password\": \"StrongPass123!\",\n  \"full_name\": \"Learner Name\"\n}"}}},
-    {"name":"Login","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"url":"{{baseUrl}}/auth/login","body":{"mode":"raw","raw":"{\n  \"email\": \"demo@coach.local\",\n  \"password\": \"DemoPass123!\"\n}"}}},
-    {"name":"Daily lesson","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{token}}"}],"url":"{{baseUrl}}/lessons/daily"}},
-    {"name":"Grammar correction","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Content-Type","value":"application/json"}],"url":"{{baseUrl}}/grammar/correct","body":{"mode":"raw","raw":"{\"text\":\"i dont know the project status\"}"}}}
+    {
+      "name":"Authentication",
+      "item":[
+        {"name":"Sign up","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"url":"{{baseUrl}}/auth/signup","body":{"mode":"raw","raw":"{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"full_name\": \"Learner Name\",\n  \"industry\": \"Other\",\n  \"role\": \"Professional\"\n}"}},"event":[{"listen":"test","script":{"type":"text/javascript","exec":["if (pm.response.code === 200) pm.collectionVariables.set('token', pm.response.json().access_token);"]}}]},
+        {"name":"Login","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"url":"{{baseUrl}}/auth/login","body":{"mode":"raw","raw":"{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"}},"event":[{"listen":"test","script":{"type":"text/javascript","exec":["if (pm.response.code === 200) pm.collectionVariables.set('token', pm.response.json().access_token);"]}}]}
+      ]
+    },
+    {"name":"Profile","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{token}}"}],"url":"{{baseUrl}}/profile"}},
+    {"name":"Save learning goals","request":{"method":"PUT","header":[{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Content-Type","value":"application/json"}],"url":"{{baseUrl}}/profile","body":{"mode":"raw","raw":"{\n  \"goals\": [\"Explain technical work\"],\n  \"practice_minutes\": 10,\n  \"feedback_style\": \"balanced\",\n  \"self_assessed_proficiency\": \"intermediate\"\n}"}}},
+    {"name":"Submit baseline text sample","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Content-Type","value":"application/json"}],"url":"{{baseUrl}}/assessment","body":{"mode":"raw","raw":"{\n  \"answers\": {\"workplace_sample\": \"The project is complete. Validation is underway, and I will share the result tomorrow.\"}\n}"}}},
+    {"name":"Get adaptive practice plan","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{token}}"}],"url":"{{baseUrl}}/lessons/daily"}},
+    {"name":"Submit text exercise","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Content-Type","value":"application/json"}],"url":"{{baseUrl}}/exercises/submit","body":{"mode":"raw","raw":"{\n  \"skill\": \"grammar\",\n  \"prompt\": \"Write a short status update\",\n  \"response\": \"We completed validation today and will share the result tomorrow.\"\n}"}}},
+    {"name":"Writing coach","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Content-Type","value":"application/json"}],"url":"{{baseUrl}}/writing/coach","body":{"mode":"raw","raw":"{\n  \"text\": \"The release is delayed by one day. We found the issue and will complete validation tomorrow.\",\n  \"mode\": \"clearer\"\n}"}}},
+    {"name":"Review vocabulary","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Content-Type","value":"application/json"}],"url":"{{baseUrl}}/vocabulary/review","body":{"mode":"raw","raw":"{\n  \"word\": \"{{word}}\",\n  \"recalled\": true\n}"}}},
+    {"name":"Dashboard","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{token}}"}],"url":"{{baseUrl}}/dashboard"}},
+    {"name":"Progress","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{token}}"}],"url":"{{baseUrl}}/progress"}},
+    {"name":"Export learning data","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{token}}"}],"url":"{{baseUrl}}/data/export"}},
+    {"name":"Delete account","request":{"method":"DELETE","header":[{"key":"Authorization","value":"Bearer {{token}}"}],"url":"{{baseUrl}}/account"}}
   ]
 }

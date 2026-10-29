@@ -1,0 +1,16 @@
+.env
+*.db
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+backend/.deps/
+venv/
+frontend/node_modules/
+frontend/.next/
+frontend/.pnpm-store/
+frontend/out/
+postgres_data/
+*.log

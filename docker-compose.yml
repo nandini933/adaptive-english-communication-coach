@@ -4,32 +4,40 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-coach}
       POSTGRES_USER: ${POSTGRES_USER:-coach}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
-    volumes: [postgres_data:/var/lib/postgresql/data]
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-dev-only}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [CMD-SHELL, pg_isready -U coach]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-coach} -d ${POSTGRES_DB:-coach}"]
       interval: 5s
       timeout: 5s
       retries: 10
-  redis:
-    image: redis:7-alpine
   api:
     build: ./backend
-    env_file: .env
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://${POSTGRES_USER:-coach}:${POSTGRES_PASSWORD:-local-dev-only}@db:5432/${POSTGRES_DB:-coach}}
+      SECRET_KEY: ${SECRET_KEY:-local-development-key-change-before-deploy-000000000000}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
     depends_on:
-      db: {condition: service_healthy}
-      redis: {condition: service_started}
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
     ports: ["8000:8000"]
-  worker:
-    build: ./backend
-    command: celery -A app.worker.celery_app worker --loglevel=info
-    env_file: .env
-    depends_on: [api, redis]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
   web:
     build: ./frontend
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
-    depends_on: [api]
+    depends_on:
+      api:
+        condition: service_healthy
     ports: ["3000:3000"]
 volumes:
   postgres_data:
